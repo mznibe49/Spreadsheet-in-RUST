@@ -3,23 +3,23 @@ use crate::rectangle::Rectangle;
 use petgraph::graph::NodeIndex;
 use crate::rules::Rules;
 
-#[derive(PartialOrd, PartialEq, Default, Debug, Clone, Copy)]
 /// Structure of a cell
 /// Index : representing the index of node where the cell will be residing
 /// Coordinates : reprente the coordinates of the cell by (row, collumn)
 /// Category : the cell type
+#[derive(PartialOrd, PartialEq, Default, Debug, Clone, Copy)]
 pub struct Cell {
     pub index: NodeIndex<u32>,
     pub coordinates: Coordinates,
     pub category: Category
 }
 
-#[derive(PartialOrd, PartialEq, Debug, Clone, Copy)]
 /// Enum of cell's categories
 /// A cell is either
 /// StaticCell which containt only a value
 /// OccurCell which is a cell that will count the occurence of it value in a certain area
 /// FaultyCell
+#[derive(PartialOrd, PartialEq, Debug, Clone, Copy)]
 pub enum Category {
     StaticCell(StaticCell),
     OccurCell(OccurCell),
@@ -32,15 +32,15 @@ impl Default for Category {
     }
 }
 
-#[derive(PartialOrd, PartialEq, Debug, Clone, Copy)]
 /// Structure of a static cell
+#[derive(PartialOrd, PartialEq, Debug, Clone, Copy)]
 pub struct StaticCell {
     pub value: u32,
 }
 
-#[derive(PartialOrd, PartialEq, Default, Debug, Clone, Copy)]
 /// Structure of a dynamic cell
 /// OccurCell contain a rectangle which represent the area where this cell will be counting it occurrence
+#[derive(PartialOrd, PartialEq, Default, Debug, Clone, Copy)]
 pub struct OccurCell {
     pub occurrence: u32,
     pub rectangle: Rectangle,
