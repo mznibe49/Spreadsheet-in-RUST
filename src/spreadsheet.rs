@@ -13,6 +13,10 @@ use std::ops::Add;
 use self::petgraph::Direction::Incoming;
 
 
+/// Spreadsheet contain :
+/// graph :  where to store the cells
+/// evals : hashmap to store only the cell to evaluate, which mean OccurCells
+/// changes : to store the changes affected by a user
 pub struct SpreadSheet {
     pub graph: Graph<Cell, Cell, Directed>,
     pub evals: HashMap<Coordinates, Cell>,
@@ -33,7 +37,7 @@ impl SpreadSheet {
         }
     }
 
-
+    /// Function that browse "data.csv" file input in fill the graph
     pub fn browse_data(&mut self, path: &String) {
         let stream = BufReader::new(File::open(path).unwrap());
         let rule = Rules::new();
@@ -73,10 +77,10 @@ impl SpreadSheet {
         self.row_max = coordinates.row - 1;
     }
 
-    /// function that give us an index node from coordinates
-    /// for exemple in a file with max_col = 4
-    /// if we want to have the index node of the cell with coordinate (2, 2)
-    /// it will be ((4 + 1)*2 + 2) = 12
+    /// Function that give us an index node from coordinates
+    /// For exemple in a file with max_col = 4
+    /// If we want to have the index node of the cell with coordinate (2, 2)
+    /// It will be ((4 + 1)*2 + 2) = 12
     pub fn get_index_node_from_crd(&mut self, coordinates: &Coordinates) -> NodeIndex<u32>{
         return if coordinates.row == 0 {
             NodeIndex::new(coordinates.col as usize)
@@ -86,7 +90,9 @@ impl SpreadSheet {
         }
     }
 
-    /// fonction that link nodes between them
+    /// Function that link nodes between them
+    /// An OccurCell is a father of every another cell in it rectangle (area)
+    /// Every node containing an OccurCell will build an outgoing edges to it children
     pub fn link_nodes(&mut self){
         let clone = self.evals.clone();
         for (coordinates,  mut cell) in clone {
@@ -112,7 +118,7 @@ impl SpreadSheet {
         }
     }
 
-    /// return the family of dynamics cells from one node index
+    /// Return the family of a node from it index
     pub fn get_family(&mut self, node_index: NodeIndex<u32>, memo: &mut Vec<NodeIndex<u32>>) {
         if let Category::StaticCell(_cell) = self.graph[node_index].category{
             return;
@@ -144,6 +150,7 @@ impl SpreadSheet {
         }
     }
 
+    /// Printing the cells from the graph
     pub fn print_cells(&mut self) {
 
         for index in 0..(self.graph.node_count()) {
@@ -170,10 +177,10 @@ impl SpreadSheet {
     }
 
 
-    /// Update cells who are part of a cycle.
-    ///
+    /// Update the category of cells who are part of a cycle.
+    /// A cell in a cycle is a FaultyCell
     /// # Arguments
-    /// * 'cycle_cells' A coordinates vector of cell who are part of a cycle
+    /// * 'cycle_cells' A NodeIndex vector of cell who are part of a cycle
     pub fn update_cells(&mut self, cycle_cells: Vec<NodeIndex<u32>>) {
         for key in cycle_cells.clone() {
             self.graph[key].set_category(FaultyCell);
@@ -183,7 +190,7 @@ impl SpreadSheet {
 
     }
 
-    /// Browse the evaluation vector and evaluates all the cells inside.
+    /// Browse evals hashmap and evaluates all the cells inside.
     ///
     /// First, evaluate all cells without childs into the list.
     /// Then, delete those cells from the list.
@@ -286,7 +293,6 @@ impl SpreadSheet {
     /// Nothing if everything was alright, else Error.
     pub fn spread_information(&mut self, new_cell: &mut Cell,  old_cell_value: Option<u32>) -> Result<(), Error> {
         // If the new value equals the old value, spread the information is useless
-        println!("new cell get spec : {:?}, old_cell_val : {:?}",new_cell.get_special(),old_cell_value);
         if new_cell.get_special() == old_cell_value {
             return Ok(());
         }
@@ -295,7 +301,6 @@ impl SpreadSheet {
         // All changes are going to be written in a file
         self.changes.insert(new_cell.coordinates, new_cell.get_value_string());
 
-        //println!("LEN OF CHANGES BT IS : {:?}", self.changes);
 
         // The changes variable stores all cells affected by the new value
         let mut local_changes: Vec<(NodeIndex<u32>, Option<u32>)> = Vec::new();
