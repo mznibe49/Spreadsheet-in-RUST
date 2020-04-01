@@ -5,6 +5,9 @@ use crate::rules::Rules;
 
 #[derive(PartialOrd, PartialEq, Default, Debug, Clone, Copy)]
 /// Structure of a cell
+/// Index : representing the index of node where the cell will be residing
+/// Coordinates : reprente the coordinates of the cell by (row, collumn)
+/// Category : the cell type
 pub struct Cell {
     pub index: NodeIndex<u32>,
     pub coordinates: Coordinates,
@@ -13,6 +16,10 @@ pub struct Cell {
 
 #[derive(PartialOrd, PartialEq, Debug, Clone, Copy)]
 /// Enum of cell's categories
+/// A cell is either
+/// StaticCell which containt only a value
+/// OccurCell which is a cell that will count the occurence of it value in a certain area
+/// FaultyCell
 pub enum Category {
     StaticCell(StaticCell),
     OccurCell(OccurCell),
@@ -33,6 +40,7 @@ pub struct StaticCell {
 
 #[derive(PartialOrd, PartialEq, Default, Debug, Clone, Copy)]
 /// Structure of a dynamic cell
+/// OccurCell contain a rectangle which represent the area where this cell will be counting it occurrence
 pub struct OccurCell {
     pub occurrence: u32,
     pub rectangle: Rectangle,
@@ -195,13 +203,14 @@ impl OccurCell {
         }
     }
 
-
+    /// check if the formula respect the good syntax
     pub fn check_formula(formula: &String, rule: &Rules) -> std::io::Result<bool> {
         let mut trimmed_str = String::from(formula);
         trimmed_str.retain(|c| !c.is_whitespace());
         Ok(rule.occur_regex.is_match(&trimmed_str))
     }
 
+    /// parse the cell from a formula
     pub fn parse_formula(&mut self, formula: &String) -> std::io::Result<bool> {
         let mut trimmed_str = String::from(formula);
         trimmed_str.retain(|c| !c.is_whitespace());
