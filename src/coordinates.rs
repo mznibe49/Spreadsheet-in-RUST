@@ -1,8 +1,8 @@
 use std::hash::{Hash, Hasher};
 use std::cmp::Ordering;
 
-#[derive(Default, Debug, Clone, Copy)]
 /// Structure defining the coordinates of a cell
+#[derive(Default, Debug, Clone, Copy)]
 pub struct Coordinates {
     pub row: u32,
     pub col: u32
@@ -40,7 +40,7 @@ impl Hash for Coordinates {
 
 impl Eq for Coordinates {}
 
-
+/// function that help storing coordinates in a certain order
 impl Ord for Coordinates {
     fn cmp(&self, other: &Self) -> Ordering {
         if self.row == other.row {
