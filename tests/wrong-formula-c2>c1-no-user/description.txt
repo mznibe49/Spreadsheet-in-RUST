@@ -1,0 +1,2 @@
+This test evaluates a "view" file with one wrong formula where c2 < c1
+The "user" file is empty

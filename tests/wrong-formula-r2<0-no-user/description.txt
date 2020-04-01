@@ -1,0 +1,2 @@
+This test evaluates a "view" file with one formula where r2 < 0
+The "user" file is empty

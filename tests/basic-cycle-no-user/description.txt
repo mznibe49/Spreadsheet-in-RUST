@@ -1,0 +1,2 @@
+This test evaluates a view file with a cycle
+The "user" file is empty

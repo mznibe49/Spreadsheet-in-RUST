@@ -1,0 +1,2 @@
+This test evaluates a "view" file with one pointing to a non-existing area
+The "user" file is empty

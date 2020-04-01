@@ -1,0 +1,2 @@
+This test evaluates a "view" file with only one formula and no errors
+The "user" file is changing one integer value with a cycle formula

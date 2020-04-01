@@ -1,0 +1,86 @@
+#!/bin/bash
+#
+# InRustWeTrust's testing script.
+# Inputs files are tested inside a docker container.
+#
+
+# The expected files count
+args_exp=4
+
+# Marvin is our friendly container. That's his name.
+cont_name="marvin"
+
+# Execution path in the container
+epath=$cont_name":/app"
+
+img_name="vashcoremaster/in-rust-we-trust"
+
+# Check if the expected number of files is passed as
+# arguments. If not, exit.
+check_args_count () {
+	if [ $# -ne $args_exp ]; then
+		echo "[-] Error: $args_exp arguments expected."
+		exit 1
+	fi
+}
+
+# Check if the first two filename from all filenames passed as
+# arguments are existing files. Exit if it's not the case.
+check_inputs_exists () {
+	for f in ${*:0:3}; do
+		if [ ! -f "$f" ]; then
+	    echo "[-] Error: file $f doesn't exist."
+			exit 1
+		fi
+	done
+}
+
+# Called when a command related to docker failed.
+# Kill the container, then exit with error code.
+d_error () {
+	docker kill $cont_name 1> /dev/null
+	echo "*** Script stopped ***"
+	exit 1
+}
+
+# Use docker copy function to copy all files passed in
+# arguments `$2+n` to the path specified in `$1`.
+d_cp_files () {
+	for f in ${*:2}; do
+		d_cp_file $f $1
+	done
+	echo "[+] Docker: All files copied to "$1
+}
+
+# Use docker copy function to copy `$1` file to `$2` path.
+# `$1` and `$2` can either be host or container (but must be
+# different).
+d_cp_file () {
+	if docker cp $1 $2 2> /dev/null ; then
+		echo "[+] Docker: "$1" copied inside "$2
+	else
+		echo "[-] Error: Cannot copy $1 to $2"
+		d_error
+	fi
+}
+
+# Start to process commands related to docker.
+#
+# We first run the container with a name, then we copy input
+# files given to the container in order to process them with
+# the main program. The result is finally copied from the
+# container to the host.
+d_process () {
+	files=("$@")
+	docker run -d -t --name $cont_name --rm $img_name 1> /dev/null
+	d_cp_files $epath"/." ${files[@]:0:2}
+	docker exec $cont_name cargo run --release $(basename -a $*)
+	d_cp_file $epath"/"${files[2]} "."
+	d_cp_file $epath"/"${files[3]} "."
+	docker kill $cont_name 1> /dev/null
+	echo "*** Script complete ***"
+}
+
+check_args_count $*
+check_inputs_exists $*
+d_process $*

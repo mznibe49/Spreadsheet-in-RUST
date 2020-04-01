@@ -1,0 +1,2 @@
+This test evaluates a simple "view" file : no errors, no formulas
+The "user" file is changing one integer value with a wrong formula where r2 < r1

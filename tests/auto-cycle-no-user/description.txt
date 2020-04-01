@@ -1,0 +1,2 @@
+This test evaluates a simple "view" file where one formula is pointing on herself
+The "user" file is empty
