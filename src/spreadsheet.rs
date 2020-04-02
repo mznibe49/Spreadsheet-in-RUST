@@ -533,9 +533,6 @@ impl SpreadSheet {
         // Browse the data file and fill the main cells map
         sheet.browse_data(&args[1]);
 
-        sheet.print_cells();
-
-
         // link between the graph nodes
         sheet.link_nodes();
 
